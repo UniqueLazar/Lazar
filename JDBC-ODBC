@@ -1,0 +1,174 @@
+JDBC-ODBC的驱动程序连接数据库代码如下： 
+ package exam;   
+ import java.sql.*;  
+ public class ExamBean {  
+  String strDBDriver="sun.jdbc.odbc.JdbcOdbcDriver"; //JDBC-ODBC驱动程序  
+ String strDBUrl="jdbc:odbc:exam";   
+private Connection conn=null;  
+ private Statement stmt=null;  
+ ResultSet rs=null;  //<!--注册数据库驱动程序--> 
+  public ExamBean() {    
+ try {        
+Class.forName(strDBDriver);     
+}//<!—异常处理--> catch(java.lang.ClassNotFoundException e){       
+ System.err.println("exam():"+e.getMessage());     }   }  
+//<!—建立数据库连接及定义数据查询--> 
+public ResultSet executeQuery
+String sql){ rs=null; 
+try{  conn=DriverManager.getConnection(strDBDriver);//创建数据库连接对象        stmt=conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_UPDATABLE)    ;//支持数据回滚       
+ rs=stmt.executeQuery(sql);    
+  }catch(SQLException ex){      
+  System.err.println("aq.executeQuery:"+ex.getMessage());     }   
+  return rs;   }  //<!—定义数据更新操作-->  
+  public void executeUpdate(String sql){  
+   stmt=null;    
+ try{       
+ conn=DriverManager.getConnection(strDBDriver);     
+  stmt=conn.createStatement();      
+ stmt.executeUpdate(sql);     
+  stmt.close(); 
+}catch(SQLExceptionex){      
+  System.err.println("aq.executeQuery:"+ex.getMessage());     }   } 
+ //<!—关闭数据库连接-->   
+public void closeStmt(){    
+ try{        
+stmt.close();     
+ }catch(SQLException e){
+       e.printStackTrace(); 
+    }
+   }
+    public void closeConn(){  
+   try{ 
+conn.close();     
+ }catch(SQLException e){  
+     e.printStackTrace();  
+  }   
+ 管理员登录的主要代码如下 
+ Package util; 
+Import java.sql.*; 
+public class DBConn {   
+  static{    
+     try{     
+     Class.forName("com.microsoft.jdbc.sqlserver.SQLServerDriver");
+ //        
+  Class.forName("com.mysql.jdbc.Driver"); 
+  //          Class.forName("sun.jdbc.odbc.JdbcOdbcDriver");     
+}catch(Exception ex){     
+        ex.printStackTrace();   
+      }  
+   }  
+ public static Connection getConn(){   
+      try{  
+        Connectionconn=DriverManager.getConnection("jdbc:microsoft:sqlserver://localhost:1433;databasename=hshygl","sa","123");  //  
+      Conn = DriverManager.getConnection("jdbc:mysql://localhost/fzshop","root","123");  //       
+ Connection conn=DriverManager.getConnection("jdbc:odbc:temp");           
+  return conn;      
+   }catch(Exception ex){          
+   ex.printStackTrace();         
+    return null;
+ }    
+  }   
+   public static void close(Connection conn,Statement st,ResultSetrs)
+{      
+ if(rs!=null){    
+          try{       
+           rs.close();    
+          }catch(SQLException ex){  
+           }  
+      }   
+      if(st!=null){ 
+           try {   
+              st.close();      
+      }catch(Exception ex){  
+          }        }       
+  if(conn!=null){     
+      try{     
+            conn.close();     
+       }catch(Exception ex){        
+    }
+
+     /**    * Destruction of the servlet. <br>   */  
+ public void destroy() {  
+ super.destroy(); // Just puts "destroy" string in log   
+// Put your code here   }     
+ /**    * The doGet method of the servlet. <br>   *    * This method is called when a form has its tag value method equals to get.   *    
+ * @param request the request send by the client to the server  
+ * @param response the response send by the server to the client  
+* @throws ServletException if an error occurred  
+ * @throws IOException if an error occurred   */  
+ public void doGet(HttpServletRequest request, HttpServletResponse response) 
+    throws ServletException, IOException { 
+  doPost(request, response);    }   
+   /**   * The doPost method of the servlet.   *   
+ * This method is called when a form has its tag value method equals to post.   *  
+ * @param request the request send by the client to the server  
+ * @param response the response send by the server to the client   * @throws ServletException if an error occurred  
+ * @throws IOException if an error occurred  
+ */   public void doPost(HttpServletRequest request, HttpServletResponse response)    throws 
+ServletException,IOException {
+      response.setContentType("text/html;charset=gb2312");   request.setCharacterEncoding("gb2312");  
+     String id = request.getParameter("id");  
+  String amount = request.getParameter("amount");      
+  String sql = "update users set amount=amount+"+amount+" where id="+id;   InsertUpdateDelBean ib = new InsertUpdateDelBean(); 
+  ib.insertANDupdateANDdel(sql);   
+   sql = "insert into payment(usersid,name,price) values("+id+",' ',"+amount+")"; 
+   ib.insertANDupdateANDdel(sql);    
+ request.setAttribute("message", "操作成功！");     
+  RequestDispatcher rd=request.getRequestDispatcher("/admin/users_amount.jsp");
+   rd.forward(request,response); 
+ }   
+ 
+ 信息查询功能的主要代码如下： 
+ 
+ package servlet;  
+import java.io.IOException; 
+import java.io.PrintWriter;
+ import java.text.SimpleDateFormat;
+ import java.util.Calendar; import java.util.Date;  
+ import javax.servlet.RequestDispatcher;
+ import javax.servlet.ServletException; 
+import javax.servlet.http.HttpServlet;
+  import javax.servlet.http.HttpServletRequest;
+ import javax.servlet.http.HttpServletResponse; 
+  import util.Validate; 
+ import bean.InsertUpdateDelBean;  
+ public class AmountServlet extends HttpServlet {  
+   /**   * Constructor of the object.   */  
+ public AmountServlet() {   super();   
+ }      /** 
+  * Destruction of the servlet. <br>   */  
+ public void destroy() {  
+ super.destroy(); // Just puts "destroy" string in log     // Put your code here
+   }      ** 
+  * The doGet method of the servlet. <br>   *  
+   * This method is called when a form has its tag value method equals to get. *    
+ * @param request the request send by the client to the server   * @param response the response send by the server to the client  
+ * @throws ServletException if an error occurred  
+ * @throws IOException if an error occurred   */   
+public void doGet(HttpServletRequest request, HttpServletResponse response)   
+  throws ServletException, IOException { 
+  doPost(request, response);   }   
+   /**  
+  * The doPost method of the servlet. <br>   * 
+   * This method is called when a form has its tag value method equals to post.   *  
+   * @param request the request send by the client to the server  
+ * @param response the response send by the server to the client  
+ * @throws ServletException if an error occurred  
+ * @throws IOException if an error occurred   */  
+ public void doPost(HttpServletRequest request, HttpServletResponse response)  
+  throws ServletException, IOException
+ {  
+     response.setContentType("text/html;charset=gb2312");   
+request.setCharacterEncoding("gb2312");    
+   String id = request.getParameter("id");  
+  String amount = request.getParameter("amount");   
+    String sql = "update users set amount=amount+"+amount+" where id="+id;  
+ InsertUpdateDelBean ib = new InsertUpdateDelBean();  
+  ib.insertANDupdateANDdel(sql);  
+ sql = "insert into payment(usersid,name,price) 
+values("+id+",' ',"+amount+")"; 
+  ib.insertANDupdateANDdel(sql);   
+  request.setAttribute("message", "操作成功！");    
+   RequestDispatcher rd=request.getRequestDispatcher("/admin/users_amount.jsp"); 
+  rd.forward(request,response);   
+  }
